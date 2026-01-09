@@ -388,15 +388,27 @@ function cerrarModulo() {
 }
 
 function guardarModulo(modulo) {
+    console.log('🔍 Guardando módulo:', modulo);
+    
     // Validar que todos los campos del módulo estén completos
     const moduloDetalle = document.getElementById(`moduloDetalle${modulo}`);
+    
+    if (!moduloDetalle) {
+        console.error('❌ No se encontró el elemento moduloDetalle' + modulo);
+        mostrarToast('Error: No se encontró el módulo', 'error');
+        return;
+    }
+    
     const inputs = moduloDetalle.querySelectorAll('input[required], select[required], textarea[required]');
     let todosCompletos = true;
+    
+    console.log('📋 Campos a validar:', inputs.length);
     
     inputs.forEach(input => {
         if (!input.value) {
             todosCompletos = false;
             input.style.borderColor = '#ef4444';
+            console.log('❌ Campo vacío:', input.id || input.name);
         } else {
             input.style.borderColor = '';
         }
@@ -407,7 +419,9 @@ function guardarModulo(modulo) {
         return;
     }
     
-    // Validación específica para llantas - Si hay llantas críticas, debe haber evidencias
+    console.log('✅ Todos los campos completos');
+    
+    // Validación específica para llantas - Si hay llantas críticas, advertir sobre evidencias
     if (modulo === 'llantas') {
         const llantasCriticas = [];
         
@@ -435,22 +449,23 @@ function guardarModulo(modulo) {
                 }
             });
             
+            // Solo advertir, no bloquear
             if (llantasSinFoto.length > 0) {
-                mostrarToast(`❌ Debe adjuntar evidencia fotográfica para las llantas críticas: #${llantasSinFoto.join(', #')}`, 'error');
-                
-                // Hacer scroll al primer campo sin foto
-                const primerInput = document.getElementById(`evidenciaLlanta${llantasSinFoto[0]}`);
-                if (primerInput) {
-                    primerInput.style.borderColor = '#ef4444';
-                    primerInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const continuar = confirm(`⚠️ Las llantas críticas #${llantasSinFoto.join(', #')} no tienen evidencia fotográfica.\n\n¿Desea continuar de todas formas?`);
+                if (!continuar) {
+                    // Hacer scroll al primer campo sin foto
+                    const primerInput = document.getElementById(`evidenciaLlanta${llantasSinFoto[0]}`);
+                    if (primerInput) {
+                        primerInput.style.borderColor = '#ef4444';
+                        primerInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    return;
                 }
-                
-                return;
             }
         }
     }
     
-    // Validación específica para carrocería - Si hay MALO, debe haber evidencias
+    // Validación específica para carrocería - Si hay MALO, advertir sobre evidencias
     if (modulo === 'carroceria') {
         const faldones = document.getElementById('carroceriaFaldones');
         const vidrios = document.getElementById('carroceriaVidrios');
@@ -458,25 +473,30 @@ function guardarModulo(modulo) {
         
         const hayNOK = faldones.value === 'MALO' || vidrios.value === 'MALO' || espejos.value === 'MALO';
         
+        // Solo advertir, no bloquear
         if (hayNOK && evidenciasCarroceria.length === 0) {
-            mostrarToast('❌ Debe adjuntar evidencia fotográfica de los elementos MALOS', 'error');
-            
-            // Resaltar el campo de evidencias
-            const inputEvidencias = document.getElementById('evidenciasCarroceria');
-            if (inputEvidencias) {
-                inputEvidencias.style.borderColor = '#ef4444';
-                inputEvidencias.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const continuar = confirm('⚠️ Hay elementos en estado MALO sin evidencia fotográfica.\n\n¿Desea continuar de todas formas?');
+            if (!continuar) {
+                // Resaltar el campo de evidencias
+                const inputEvidencias = document.getElementById('evidenciasCarroceria');
+                if (inputEvidencias) {
+                    inputEvidencias.style.borderColor = '#ef4444';
+                    inputEvidencias.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return;
             }
-            
-            return;
         }
     }
     
     // Marcar módulo como completado
     modulosCompletados[modulo] = true;
+    console.log('✅ Módulo marcado como completado:', modulo);
+    console.log('📊 Estado módulos:', modulosCompletados);
     
     // Actualizar UI del módulo en la galería
     const moduloCard = document.getElementById(`modulo${capitalizar(modulo)}`);
+    console.log('🎴 Buscando card:', `modulo${capitalizar(modulo)}`, 'Encontrado:', !!moduloCard);
+    
     if (moduloCard) {
         moduloCard.classList.add('completado');
         const statusSpan = moduloCard.querySelector('.modulo-status');
@@ -490,9 +510,11 @@ function guardarModulo(modulo) {
     actualizarBarraProgreso();
     
     // Cerrar módulo y volver a galería
+    console.log('🔙 Cerrando módulo y volviendo a galería...');
     cerrarModulo();
     
     mostrarToast(`✅ Módulo "${getNombreModulo(modulo)}" guardado correctamente`, 'success');
+    console.log('✅ Función guardarModulo completada');
 }
 
 function capitalizar(str) {
