@@ -1,4 +1,4 @@
-const CACHE_NAME = 'previajes-v1';
+const CACHE_NAME = 'previajes-v2';
 const BASE_PATH = '/previajes';
 const urlsToCache = [
   BASE_PATH + '/',
@@ -44,6 +44,18 @@ self.addEventListener('activate', event => {
 
 // Estrategia: Network First, fallback a Cache
 self.addEventListener('fetch', event => {
+  // No cachear peticiones POST (como el guardado de inspecciones)
+  if (event.request.method !== 'GET') {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // No cachear peticiones a Google Apps Script
+  if (event.request.url.includes('script.google.com')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .then(response => {
@@ -65,7 +77,7 @@ self.addEventListener('fetch', event => {
           
           // Si no está en caché y es navegación, mostrar página offline
           if (event.request.mode === 'navigate') {
-            return caches.match('/index.html');
+            return caches.match(BASE_PATH + '/index.html');
           }
           
           return new Response('Contenido no disponible offline', {
