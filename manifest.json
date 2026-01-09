@@ -2,12 +2,12 @@
   "name": "PreViajes - Alberto Ochoa",
   "short_name": "PreViajes",
   "description": "Sistema de inspección vehicular Alberto Ochoa",
-  "start_url": "/",
+  "start_url": "/previajes/",
   "display": "standalone",
   "background_color": "#dc2626",
   "theme_color": "#dc2626",
   "orientation": "portrait-primary",
-  "scope": "/",
+  "scope": "/previajes/",
   "icons": [
     {
       "src": "icon-72.png",
