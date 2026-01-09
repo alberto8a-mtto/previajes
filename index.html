@@ -30,9 +30,6 @@
                     <h1>🚍 PreViajes</h1>
                     <p id="headerSubtitle">Inspección completa de vehículo - Todas las verificaciones</p>
                 </div>
-                <button type="button" class="btn-consultar" onclick="abrirConsultaInspecciones()">
-                    📋 Consultar Inspecciones
-                </button>
             </div>
         </header>
 
@@ -545,71 +542,6 @@
 
         <!-- Toast Notification -->
         <div id="toast" class="toast"></div>
-    </div>
-
-    <!-- Modal de Consulta de Inspecciones -->
-    <div id="modalConsultaInspecciones" class="modal" style="display: none;">
-        <div class="modal-content modal-wide">
-            <div class="modal-header">
-                <h2>📋 Consultar Inspecciones Anteriores</h2>
-                <button type="button" class="btn-close-modal" onclick="cerrarConsultaInspecciones()">✕</button>
-            </div>
-            
-            <div class="modal-body">
-                <!-- Filtros de Búsqueda -->
-                <div class="filtros-consulta">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="filtroBus">Bus (Número/Placa):</label>
-                            <input type="text" id="filtroBus" placeholder="Buscar por número o placa...">
-                        </div>
-                        <div class="form-group">
-                            <label for="filtroFechaDesde">Fecha Desde:</label>
-                            <input type="date" id="filtroFechaDesde">
-                        </div>
-                        <div class="form-group">
-                            <label for="filtroFechaHasta">Fecha Hasta:</label>
-                            <input type="date" id="filtroFechaHasta">
-                        </div>
-                        <div class="form-group">
-                            <label for="filtroHallazgos">Filtrar por:</label>
-                            <select id="filtroHallazgos">
-                                <option value="todas">Todas las inspecciones</option>
-                                <option value="criticas">Solo con llantas críticas</option>
-                                <option value="malos">Solo con elementos MALOS</option>
-                                <option value="hallazgos">Con hallazgos (críticas o MALOS)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="actions">
-                        <button type="button" class="btn btn-primary" onclick="buscarInspecciones()">
-                            🔍 Buscar
-                        </button>
-                        <button type="button" class="btn btn-secondary" onclick="limpiarFiltros()">
-                            🔄 Limpiar Filtros
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Resultados de Búsqueda -->
-                <div id="resultadosInspecciones" class="resultados-inspecciones">
-                    <p class="info-text">Use los filtros para buscar inspecciones anteriores</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Detalle de Inspección -->
-    <div id="modalDetalleInspeccion" class="modal" style="display: none;">
-        <div class="modal-content modal-wide">
-            <div class="modal-header">
-                <h2>🔍 Detalle de Inspección</h2>
-                <button type="button" class="btn-close-modal" onclick="cerrarDetalleInspeccion()">✕</button>
-            </div>
-            <div class="modal-body" id="detalleInspeccionContent">
-                <!-- Se llenará dinámicamente -->
-            </div>
-        </div>
     </div>
 
     <script src="app.js"></script>
