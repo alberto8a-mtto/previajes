@@ -28,6 +28,8 @@ function doGet(e) {
         return obtenerBuses();
       case 'getConductores':
         return obtenerConductores();
+      case 'consultarInspecciones':
+        return consultarInspecciones(e.parameter);
       case 'getInspecciones':
         return consultarInspeccionesGet(e.parameter);
       default:
