@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo: Validación Carrocería NOK</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #2563eb;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1e293b;
+            transition: color 0.3s;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .warning {
+            display: none;
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 6px;
+            color: #92400e;
+        }
+
+        .warning.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .required-badge {
+            display: none;
+            color: #ef4444;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-left: 8px;
+        }
+
+        .required-badge.show {
+            display: inline;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            border: 2px dashed #e2e8f0;
+            border-radius: 8px;
+            width: 100%;
+            transition: border-color 0.3s;
+        }
+
+        input[type="file"]:hover {
+            border-color: #2563eb;
+        }
+
+        .preview-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .preview-item {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px;
+            background: #f8fafc;
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .btn-remove {
+            width: 100%;
+            margin-top: 8px;
+            padding: 6px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .btn-remove:hover {
+            background: #dc2626;
+        }
+
+        .btn-save {
+            width: 100%;
+            padding: 16px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s;
+        }
+
+        .btn-save:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 2px solid #10b981;
+            display: block;
+        }
+
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 2px solid #ef4444;
+            display: block;
+        }
+
+        .inspection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚌 Demo: Validación Carrocería</h1>
+        <p class="subtitle">Prueba la validación automática de evidencias fotográficas</p>
+
+        <div class="inspection-grid">
+            <div class="form-group">
+                <label for="faldones">Faldones: *</label>
+                <select id="faldones" class="carroceria-select">
+                    <option value="">Seleccionar...</option>
+                    <option value="BUENO">✅ BUENO</option>
+                    <option value="MALO">❌ MALO</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="vidrios">Vidrios: *</label>
+                <select id="vidrios" class="carroceria-select">
+                    <option value="">Seleccionar...</option>
+                    <option value="BUENO">✅ BUENO</option>
+                    <option value="MALO">❌ MALO</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="espejos">Espejos: *</label>
+                <select id="espejos" class="carroceria-select">
+                    <option value="">Seleccionar...</option>
+                    <option value="BUENO">✅ BUENO</option>
+                    <option value="MALO">❌ MALO</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="warning" id="warning">
+            <strong>⚠️ Atención:</strong> Se detectaron elementos MALOS. Debe adjuntar evidencia fotográfica obligatoriamente.
+        </div>
+
+        <div class="form-group">
+            <label for="evidencias">
+                📸 Evidencias Fotográficas:
+                <span class="required-badge" id="requiredBadge">(OBLIGATORIO)</span>
+            </label>
+            <input type="file" id="evidencias" accept="image/*" multiple>
+            <small style="color: #64748b; display: block; margin-top: 4px;">
+                Adjunte fotos de los elementos con problemas
+            </small>
+        </div>
+
+        <div class="preview-container" id="preview"></div>
+
+        <button class="btn-save" onclick="validarYGuardar()">
+            ✓ Guardar Módulo
+        </button>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        let evidencias = [];
+
+        // Event listeners
+        document.querySelectorAll('.carroceria-select').forEach(select => {
+            select.addEventListener('change', validarNOK);
+        });
+
+        document.getElementById('evidencias').addEventListener('change', function(e) {
+            evidencias = Array.from(e.target.files);
+            mostrarPreview();
+            validarNOK();
+        });
+
+        function validarNOK() {
+            const faldones = document.getElementById('faldones').value;
+            const vidrios = document.getElementById('vidrios').value;
+            const espejos = document.getElementById('espejos').value;
+
+            const hayNOK = faldones === 'MALO' || vidrios === 'MALO' || espejos === 'MALO';
+
+            const warning = document.getElementById('warning');
+            const badge = document.getElementById('requiredBadge');
+
+            if (hayNOK) {
+                warning.classList.add('show');
+                badge.classList.add('show');
+            } else {
+                warning.classList.remove('show');
+                badge.classList.remove('show');
+            }
+        }
+
+        function mostrarPreview() {
+            const container = document.getElementById('preview');
+            container.innerHTML = '';
+
+            evidencias.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.className = 'preview-item';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" alt="Evidencia ${index + 1}">
+                        <button class="btn-remove" onclick="eliminarEvidencia(${index})">
+                            🗑️ Eliminar
+                        </button>
+                    `;
+                    container.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function eliminarEvidencia(index) {
+            evidencias.splice(index, 1);
+            
+            // Actualizar input file
+            const dataTransfer = new DataTransfer();
+            evidencias.forEach(file => dataTransfer.items.add(file));
+            document.getElementById('evidencias').files = dataTransfer.files;
+            
+            mostrarPreview();
+            validarNOK();
+        }
+
+        function validarYGuardar() {
+            const status = document.getElementById('status');
+            status.className = 'status';
+            status.style.display = 'none';
+
+            const faldones = document.getElementById('faldones').value;
+            const vidrios = document.getElementById('vidrios').value;
+            const espejos = document.getElementById('espejos').value;
+
+            // Validar campos completos
+            if (!faldones || !vidrios || !espejos) {
+                status.className = 'status error';
+                status.innerHTML = '❌ Complete todos los campos obligatorios';
+                return;
+            }
+
+            // Validar MALO con evidencias
+            const hayNOK = faldones === 'MALO' || vidrios === 'MALO' || espejos === 'MALO';
+
+            if (hayNOK && evidencias.length === 0) {
+                status.className = 'status error';
+                status.innerHTML = '❌ Debe adjuntar evidencia fotográfica de los elementos MALOS';
+                document.getElementById('evidencias').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            // Éxito
+            status.className = 'status success';
+            const estadoCarroceria = {
+                faldones,
+                vidrios,
+                espejos,
+                evidencias: evidencias.length
+            };
+            status.innerHTML = `
+                ✅ <strong>Módulo guardado correctamente</strong><br>
+                <small>Faldones: ${faldones} | Vidrios: ${vidrios} | Espejos: ${espejos} | Evidencias: ${evidencias.length} foto(s)</small>
+            `;
+        }
+    </script>
+</body>
+</html>

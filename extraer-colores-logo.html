@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extractor de Colores - Logo Alberto Ochoa</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .upload-area {
+            border: 3px dashed #ccc;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 30px;
+        }
+        .upload-area:hover {
+            border-color: #999;
+            background: #fafafa;
+        }
+        .upload-area.dragover {
+            border-color: #003d7a;
+            background: #e3f2fd;
+        }
+        #imagePreview {
+            max-width: 100%;
+            max-height: 400px;
+            margin: 20px 0;
+            display: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        canvas {
+            display: none;
+        }
+        .colors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .color-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .color-sample {
+            height: 120px;
+            width: 100%;
+        }
+        .color-info {
+            padding: 15px;
+            background: white;
+        }
+        .color-name {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .color-value {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #666;
+            margin: 4px 0;
+            cursor: pointer;
+            padding: 4px 8px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .color-value:hover {
+            background: #e0e0e0;
+        }
+        .css-output {
+            margin-top: 30px;
+            padding: 20px;
+            background: #1e1e1e;
+            border-radius: 8px;
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            display: none;
+        }
+        .css-output.show {
+            display: block;
+        }
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+        .copy-btn:hover {
+            background: #218838;
+        }
+        .instructions {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #003d7a;
+            margin-bottom: 20px;
+        }
+        .btn {
+            background: #003d7a;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 10px 5px;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background: #0055aa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Extractor de Colores del Logo</h1>
+        <p class="subtitle">Alberto Ochoa - Análisis de Paleta Corporativa</p>
+
+        <div class="instructions">
+            <strong>📝 Instrucciones:</strong>
+            <ol style="margin: 10px 0 0 20px;">
+                <li>Arrastra el archivo <strong>LOGO-ALBERTO-OCHOA.jpg</strong> al área de abajo</li>
+                <li>O haz click para seleccionar el archivo</li>
+                <li>Los colores se extraerán automáticamente</li>
+                <li>Haz click en cualquier código de color para copiarlo</li>
+            </ol>
+        </div>
+
+        <div class="upload-area" id="uploadArea">
+            <p style="font-size: 48px; margin-bottom: 10px;">📁</p>
+            <p style="font-size: 18px; font-weight: 600;">Arrastra el logo aquí</p>
+            <p style="color: #999; margin-top: 10px;">o haz click para seleccionar</p>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+        </div>
+
+        <img id="imagePreview" alt="Logo Preview">
+        <canvas id="canvas"></canvas>
+
+        <div class="colors-grid" id="colorsGrid"></div>
+
+        <div class="css-output" id="cssOutput">
+            <div style="color: #6a9955;">/* Colores Corporativos Alberto Ochoa */</div>
+            <div id="cssCode"></div>
+            <button class="copy-btn" onclick="copyCSSCode()">📋 Copiar CSS</button>
+        </div>
+
+        <button class="btn" onclick="aplicarColores()" id="applyBtn" style="display: none;">
+            ✨ Aplicar Estos Colores a PreViajes
+        </button>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const colorsGrid = document.getElementById('colorsGrid');
+        const cssOutput = document.getElementById('cssOutput');
+        const cssCode = document.getElementById('cssCode');
+        const applyBtn = document.getElementById('applyBtn');
+
+        let extractedColors = {};
+
+        // Event Listeners
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFile);
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                processImage(file);
+            }
+        });
+
+        function handleFile(e) {
+            const file = e.target.files[0];
+            if (file) {
+                processImage(file);
+            }
+        }
+
+        function processImage(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                    uploadArea.style.display = 'none';
+                    extractColors(img);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function extractColors(img) {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const pixels = imageData.data;
+
+            // Obtener colores dominantes
+            const colorMap = {};
+            
+            for (let i = 0; i < pixels.length; i += 4) {
+                const r = pixels[i];
+                const g = pixels[i + 1];
+                const b = pixels[i + 2];
+                const a = pixels[i + 3];
+
+                // Ignorar píxeles casi transparentes o casi blancos
+                if (a < 128 || (r > 240 && g > 240 && b > 240)) continue;
+
+                // Cuantizar colores (agrupar similares)
+                const qr = Math.round(r / 20) * 20;
+                const qg = Math.round(g / 20) * 20;
+                const qb = Math.round(b / 20) * 20;
+
+                const key = `${qr},${qg},${qb}`;
+                colorMap[key] = (colorMap[key] || 0) + 1;
+            }
+
+            // Ordenar por frecuencia
+            const sortedColors = Object.entries(colorMap)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10); // Top 10 colores
+
+            // Analizar y categorizar colores
+            const colors = sortedColors.map(([rgb, count]) => {
+                const [r, g, b] = rgb.split(',').map(Number);
+                return { r, g, b, count };
+            });
+
+            categorizeColors(colors);
+        }
+
+        function categorizeColors(colors) {
+            const categories = {
+                primary: null,      // Azul principal
+                primaryDark: null,  // Azul oscuro
+                secondary: null,    // Naranja/Rojo
+                accent: null,       // Otros acentos
+                text: null          // Gris/Negro para texto
+            };
+
+            colors.forEach(color => {
+                const { r, g, b } = color;
+                const hex = rgbToHex(r, g, b);
+                const hsl = rgbToHsl(r, g, b);
+
+                // Detectar azules (hue entre 180-240)
+                if (hsl.h >= 180 && hsl.h <= 240 && hsl.s > 30) {
+                    if (!categories.primary || hsl.l > rgbToHsl(categories.primary.r, categories.primary.g, categories.primary.b).l) {
+                        if (categories.primary) {
+                            categories.primaryDark = categories.primary;
+                        }
+                        categories.primary = color;
+                    } else if (!categories.primaryDark || hsl.l < rgbToHsl(categories.primaryDark.r, categories.primaryDark.g, categories.primaryDark.b).l) {
+                        categories.primaryDark = color;
+                    }
+                }
+                // Detectar naranjas/rojos (hue entre 0-40)
+                else if ((hsl.h >= 0 && hsl.h <= 40) && hsl.s > 40 && hsl.l > 40) {
+                    if (!categories.secondary) {
+                        categories.secondary = color;
+                    }
+                }
+                // Detectar grises/negros para texto (saturación baja)
+                else if (hsl.s < 20 && hsl.l < 40) {
+                    if (!categories.text) {
+                        categories.text = color;
+                    }
+                }
+                // Otros colores como acentos
+                else if (!categories.accent) {
+                    categories.accent = color;
+                }
+            });
+
+            extractedColors = categories;
+            displayColors(categories);
+            generateCSS(categories);
+        }
+
+        function displayColors(categories) {
+            colorsGrid.innerHTML = '';
+
+            const colorNames = {
+                primary: 'Azul Principal',
+                primaryDark: 'Azul Oscuro',
+                secondary: 'Naranja/Acento',
+                accent: 'Color Acento',
+                text: 'Texto Oscuro'
+            };
+
+            Object.entries(categories).forEach(([key, color]) => {
+                if (!color) return;
+
+                const hex = rgbToHex(color.r, color.g, color.b);
+                const rgb = `rgb(${color.r}, ${color.g}, ${color.b})`;
+
+                const card = document.createElement('div');
+                card.className = 'color-card';
+                card.innerHTML = `
+                    <div class="color-sample" style="background-color: ${hex}"></div>
+                    <div class="color-info">
+                        <div class="color-name">${colorNames[key]}</div>
+                        <div class="color-value" onclick="copyToClipboard('${hex}')" title="Click para copiar">${hex}</div>
+                        <div class="color-value" onclick="copyToClipboard('${rgb}')" title="Click para copiar">${rgb}</div>
+                    </div>
+                `;
+                colorsGrid.appendChild(card);
+            });
+
+            applyBtn.style.display = 'block';
+        }
+
+        function generateCSS(categories) {
+            let css = ':root {\n';
+            
+            if (categories.primary) {
+                css += `    --primary-color: ${rgbToHex(categories.primary.r, categories.primary.g, categories.primary.b)};\n`;
+            }
+            if (categories.primaryDark) {
+                css += `    --primary-dark: ${rgbToHex(categories.primaryDark.r, categories.primaryDark.g, categories.primaryDark.b)};\n`;
+            }
+            if (categories.secondary) {
+                css += `    --secondary-color: ${rgbToHex(categories.secondary.r, categories.secondary.g, categories.secondary.b)};\n`;
+            }
+            if (categories.text) {
+                css += `    --text-dark: ${rgbToHex(categories.text.r, categories.text.g, categories.text.b)};\n`;
+            }
+            
+            css += '}';
+
+            cssCode.textContent = css;
+            cssOutput.classList.add('show');
+        }
+
+        function rgbToHex(r, g, b) {
+            return '#' + [r, g, b].map(x => {
+                const hex = x.toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            }).join('');
+        }
+
+        function rgbToHsl(r, g, b) {
+            r /= 255;
+            g /= 255;
+            b /= 255;
+
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+                switch (max) {
+                    case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+                    case g: h = ((b - r) / d + 2) / 6; break;
+                    case b: h = ((r - g) / d + 4) / 6; break;
+                }
+            }
+
+            return {
+                h: Math.round(h * 360),
+                s: Math.round(s * 100),
+                l: Math.round(l * 100)
+            };
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ Copiado: ' + text);
+            });
+        }
+
+        function copyCSSCode() {
+            navigator.clipboard.writeText(cssCode.textContent).then(() => {
+                alert('✅ Código CSS copiado al portapapeles!');
+            });
+        }
+
+        function aplicarColores() {
+            if (!extractedColors.primary) {
+                alert('❌ No se detectaron colores suficientes. Intenta con otra imagen.');
+                return;
+            }
+
+            const coloresData = {
+                primary: extractedColors.primary ? rgbToHex(extractedColors.primary.r, extractedColors.primary.g, extractedColors.primary.b) : '#003d7a',
+                primaryDark: extractedColors.primaryDark ? rgbToHex(extractedColors.primaryDark.r, extractedColors.primaryDark.g, extractedColors.primaryDark.b) : '#002855',
+                secondary: extractedColors.secondary ? rgbToHex(extractedColors.secondary.r, extractedColors.secondary.g, extractedColors.secondary.b) : '#ff6b35',
+                text: extractedColors.text ? rgbToHex(extractedColors.text.r, extractedColors.text.g, extractedColors.text.b) : '#1e293b'
+            };
+
+            // Mostrar resumen
+            const mensaje = `
+🎨 COLORES DETECTADOS:
+
+Azul Principal: ${coloresData.primary}
+Azul Oscuro: ${coloresData.primaryDark}
+Naranja/Acento: ${coloresData.secondary}
+Texto Oscuro: ${coloresData.text}
+
+Ahora debes actualizar manualmente:
+
+1. styles.css - Variables :root
+2. manifest.json - theme_color y background_color
+3. index.html - Meta tags theme-color
+4. generar-iconos.html - Colores del gradiente
+
+¿Quieres que se copie el código CSS al portapapeles?
+            `;
+
+            if (confirm(mensaje)) {
+                copyCSSCode();
+                alert('✅ ¡Código copiado! Ahora pégalo en styles.css dentro de :root');
+            }
+        }
+
+        // Auto-cargar logo si existe
+        window.addEventListener('load', () => {
+            fetch('LOGO-ALBERTO-OCHOA.jpg')
+                .then(response => response.blob())
+                .then(blob => {
+                    const file = new File([blob], 'LOGO-ALBERTO-OCHOA.jpg', { type: 'image/jpeg' });
+                    processImage(file);
+                })
+                .catch(() => {
+                    console.log('Logo no encontrado automáticamente. Por favor súbelo manualmente.');
+                });
+        });
+    </script>
+</body>
+</html>

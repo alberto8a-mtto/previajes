@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Iconos Placeholder - PreViajes</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        h1 {
+            color: #2563eb;
+            text-align: center;
+        }
+        .info {
+            background: #dbeafe;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid #2563eb;
+        }
+        .preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .preview-item {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .preview-item canvas {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .preview-item p {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        .btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #1e40af;
+        }
+        .warning {
+            background: #fef3c7;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #f59e0b;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎨 Generador de Iconos Placeholder</h1>
+    
+    <div class="info">
+        <h3>📝 Instrucciones:</h3>
+        <ol>
+            <li>Esta herramienta genera iconos temporales para que puedas probar la PWA</li>
+            <li>Los iconos tienen el emoji de bus 🚍 sobre fondo azul</li>
+            <li>Haz click en "Generar y Descargar Iconos"</li>
+            <li>Se descargarán automáticamente todos los tamaños necesarios</li>
+            <li>Guarda todos los archivos en la carpeta raíz de PREVIAJES</li>
+        </ol>
+    </div>
+
+    <div class="warning">
+        ⚠️ <strong>Nota:</strong> Estos son iconos placeholder temporales. Para producción, crea iconos profesionales usando las herramientas mencionadas en ICONOS_PWA.md
+    </div>
+
+    <button class="btn" onclick="generarTodosLosIconos()">🎨 Generar y Descargar Todos los Iconos</button>
+
+    <h2>Vista Previa de Iconos:</h2>
+    <div class="preview" id="preview"></div>
+
+    <script>
+        const tamaños = [72, 96, 128, 144, 152, 192, 384, 512];
+        const previewDiv = document.getElementById('preview');
+
+        function crearIcono(tamaño) {
+            const canvas = document.createElement('canvas');
+            canvas.width = tamaño;
+            canvas.height = tamaño;
+            const ctx = canvas.getContext('2d');
+
+            // Fondo gradiente ROJO Alberto Ochoa
+            const gradient = ctx.createLinearGradient(0, 0, tamaño, tamaño);
+            gradient.addColorStop(0, '#dc2626');
+            gradient.addColorStop(1, '#991b1b');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, tamaño, tamaño);
+
+            // Borde redondeado (para versiones iOS)
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.beginPath();
+            const radio = tamaño * 0.225; // Bordes redondeados iOS-style
+            ctx.roundRect(0, 0, tamaño, tamaño, radio);
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
+
+            // Emoji de bus (usando texto)
+            const fontSize = tamaño * 0.5;
+            ctx.font = `${fontSize}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Sombra para el emoji
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowBlur = tamaño * 0.02;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = tamaño * 0.01;
+            
+            ctx.fillText('🚍', tamaño / 2, tamaño / 2);
+
+            // Texto "PV" pequeño en la esquina (para iconos grandes)
+            if (tamaño >= 192) {
+                ctx.shadowColor = 'transparent';
+                ctx.font = `bold ${tamaño * 0.12}px Arial`;
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.fillText('PreViajes', tamaño / 2, tamaño * 0.85);
+            }
+
+            return canvas;
+        }
+
+        function mostrarPreview() {
+            previewDiv.innerHTML = '';
+            tamaños.forEach(tamaño => {
+                const item = document.createElement('div');
+                item.className = 'preview-item';
+                
+                const canvas = crearIcono(tamaño);
+                const small = document.createElement('canvas');
+                small.width = 120;
+                small.height = 120;
+                const smallCtx = small.getContext('2d');
+                smallCtx.drawImage(canvas, 0, 0, 120, 120);
+                
+                item.appendChild(small);
+                
+                const p = document.createElement('p');
+                p.textContent = `${tamaño}x${tamaño}px`;
+                item.appendChild(p);
+                
+                previewDiv.appendChild(item);
+            });
+        }
+
+        function descargarIcono(canvas, nombre) {
+            return new Promise((resolve) => {
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = nombre;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    setTimeout(resolve, 300); // Delay entre descargas
+                }, 'image/png');
+            });
+        }
+
+        async function generarTodosLosIconos() {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = '⏳ Generando iconos...';
+
+            for (const tamaño of tamaños) {
+                const canvas = crearIcono(tamaño);
+                await descargarIcono(canvas, `icon-${tamaño}.png`);
+            }
+
+            // Apple Touch Icon (180x180)
+            const appleIcon = crearIcono(180);
+            await descargarIcono(appleIcon, 'apple-touch-icon.png');
+
+            btn.textContent = '✅ ¡Iconos descargados! Puedes generar de nuevo si quieres';
+            btn.disabled = false;
+
+            alert('✅ Se han descargado todos los iconos.\n\nGuarda todos los archivos en la carpeta raíz de PREVIAJES (donde está index.html).\n\nNombres descargados:\n- icon-72.png\n- icon-96.png\n- icon-128.png\n- icon-144.png\n- icon-152.png\n- icon-192.png\n- icon-384.png\n- icon-512.png\n- apple-touch-icon.png');
+        }
+
+        // Polyfill para roundRect (para navegadores antiguos)
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
+                this.beginPath();
+                this.moveTo(x + radius, y);
+                this.lineTo(x + width - radius, y);
+                this.quadraticCurveTo(x + width, y, x + width, y + radius);
+                this.lineTo(x + width, y + height - radius);
+                this.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                this.lineTo(x + radius, y + height);
+                this.quadraticCurveTo(x, y + height, x, y + height - radius);
+                this.lineTo(x, y + radius);
+                this.quadraticCurveTo(x, y, x + radius, y);
+                this.closePath();
+            };
+        }
+
+        // Mostrar preview al cargar
+        mostrarPreview();
+    </script>
+</body>
+</html>

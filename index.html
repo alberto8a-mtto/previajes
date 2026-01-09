@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="description" content="Sistema de Inspección Vehicular PreViajes - Gestión completa de inspecciones de buses">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PreViajes">
+    
+    <title>PreViajes - Alberto Ochoa</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Iconos -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="header-title">
+                    <h1>🚍 PreViajes</h1>
+                    <p id="headerSubtitle">Inspección completa de vehículo - Todas las verificaciones</p>
+                </div>
+                <button type="button" class="btn-consultar" onclick="abrirConsultaInspecciones()">
+                    📋 Consultar Inspecciones
+                </button>
+            </div>
+        </header>
+
+        <!-- Barra de Progreso -->
+        <div id="progressBar" class="progress-bar" style="display: none;">
+            <div class="progress-fill"></div>
+            <div class="progress-text">0 de 6 módulos completados</div>
+        </div>
+
+        <form id="inspeccionForm">
+            <!-- PASO 1: Información General -->
+            <section id="seccionInfoGeneral" class="card active-section">
+                <h2>📋 Información General</h2>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fechaInspeccion">Fecha Inspección: *</label>
+                        <input type="datetime-local" id="fechaInspeccion" name="fechaInspeccion" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="km">Kilometraje: *</label>
+                        <input type="number" id="km" name="km" min="0" placeholder="150000" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="numeroInterno">Número Interno: *</label>
+                        <input type="text" 
+                               id="numeroInterno" 
+                               name="numeroInterno" 
+                               placeholder="Buscar número o placa..." 
+                               list="busesDatalist"
+                               required>
+                        <datalist id="busesDatalist"></datalist>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="placa">Placa:</label>
+                        <input type="text" id="placa" name="placa" readonly>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="conductorId">Conductor: *</label>
+                    <input type="text" 
+                           id="conductorId" 
+                           name="conductorId" 
+                           placeholder="Buscar conductor..." 
+                           list="conductoresDatalist"
+                           required>
+                    <datalist id="conductoresDatalist"></datalist>
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="btn btn-primary" onclick="irAModulos()">
+                        Continuar a Módulos de Inspección →
+                    </button>
+                </div>
+            </section>
+
+            <!-- PASO 2: Galería de Módulos -->
+            <section id="seccionModulos" class="card" style="display: none;">
+                <h2>🔍 Seleccione el Módulo a Inspeccionar</h2>
+                <p class="info-text">Haga clic en cada módulo para realizar la inspección correspondiente</p>
+                
+                <div class="modulos-galeria">
+                    <div class="modulo-card" onclick="abrirModulo('llantas')" id="moduloLlantas">
+                        <div class="modulo-icon">🛞</div>
+                        <h3>Profundidad de Llantas</h3>
+                        <p>Inspección de neumáticos</p>
+                        <span class="modulo-status">Pendiente</span>
+                    </div>
+
+                    <div class="modulo-card" onclick="abrirModulo('carroceria')" id="moduloCarroceria">
+                        <div class="modulo-icon">🚌</div>
+                        <h3>Carrocería</h3>
+                        <p>Faldones, vidrios y espejos</p>
+                        <span class="modulo-status">Pendiente</span>
+                    </div>
+
+                    <div class="modulo-card" onclick="abrirModulo('luces')" id="moduloLuces">
+                        <div class="modulo-icon">💡</div>
+                        <h3>Sistema de Luces y Pitos</h3>
+                        <p>Todas las luces y pitos del vehículo</p>
+                        <span class="modulo-status">Pendiente</span>
+                    </div>
+
+                    <div class="modulo-card" onclick="abrirModulo('senalizacion')" id="moduloSenalizacion">
+                        <div class="modulo-icon">🔆</div>
+                        <h3>Señalización y Emblemas</h3>
+                        <p>Cintas reflectivas y emblemas</p>
+                        <span class="modulo-status">Pendiente</span>
+                    </div>
+
+                    <div class="modulo-card" onclick="abrirModulo('seguridad')" id="moduloSeguridad">
+                        <div class="modulo-icon">🧯</div>
+                        <h3>Equipamiento de Seguridad</h3>
+                        <p>Extintores y tomas de corriente</p>
+                        <span class="modulo-status">Pendiente</span>
+                    </div>
+
+                    <div class="modulo-card" onclick="abrirModulo('documentacion')" id="moduloDocumentacion">
+                        <div class="modulo-icon">📄</div>
+                        <h3>Documentación</h3>
+                        <p>SOAT, RTM y licencias</p>
+                        <span class="modulo-status">Pendiente</span>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="btn btn-secondary" onclick="volverAInfoGeneral()">
+                        ← Volver
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="irAFirmas()">
+                        Continuar a Firmas y Evidencias →
+                    </button>
+                </div>
+            </section>
+
+            <!-- MÓDULO: Profundidad de Llantas -->
+            <section id="moduloDetallellantas" class="card modulo-detalle" style="display: none;">
+                <div class="modulo-header">
+                    <h2>🛞 Profundidad de Llantas</h2>
+                    <button type="button" class="btn-close-modulo" onclick="cerrarModulo()">✕</button>
+                </div>
+                
+                <p class="info-text">
+                    ⚠️ Ingrese las profundidades en milímetros (mm). Valores <strong style="color: #ef4444;">menores a 3mm se marcarán en rojo</strong> (crítico).
+                </p>
+
+                <!-- Resumen del Módulo de Llantas -->
+                <div class="llantas-resumen">
+                    <div class="stat-mini">
+                        <span class="stat-mini-label">Llantas Críticas (<3mm):</span>
+                        <span id="llantasCriticasCount" class="stat-mini-value critical">0</span>
+                    </div>
+                    <div class="stat-mini">
+                        <span class="stat-mini-label">Llantas Regulares (3-5mm):</span>
+                        <span id="llantasRegularesCount" class="stat-mini-value warning">0</span>
+                    </div>
+                    <div class="stat-mini">
+                        <span class="stat-mini-label">Llantas Buenas (>5mm):</span>
+                        <span id="llantasBuenasCount" class="stat-mini-value good">0</span>
+                    </div>
+                    <div class="stat-mini">
+                        <span class="stat-mini-label">Promedio General:</span>
+                        <span id="promedioGeneralLlantas" class="stat-mini-value">0.00 mm</span>
+                    </div>
+                </div>
+
+                <!-- Grid de 24 Llantas -->
+                <div id="llantasGrid" class="llantas-grid">
+                    <!-- Se generarán dinámicamente con JavaScript -->
+                </div>
+
+                <!-- Advertencia de Llantas Críticas -->
+                <div id="llantasCriticasWarning" style="display: none; background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; margin: 24px 0; border-radius: 6px;">
+                    <p style="margin: 0; color: #92400e; font-weight: 500;">
+                        ⚠️ <strong>Atención:</strong> Se detectaron <span id="llantasCriticasCount" style="font-weight: 700;">0</span> llantas con medidas críticas (<3mm). 
+                        Debe adjuntar evidencia fotográfica para cada una.
+                    </p>
+                </div>
+
+                <!-- Contenedor de Evidencias Fotográficas -->
+                <div id="evidenciasLlantasContainer" style="display: none; margin-top: 24px;">
+                    <h3 style="color: #ef4444; margin-bottom: 16px;">📸 Evidencias Fotográficas Obligatorias</h3>
+                    <div id="evidenciasLlantasGrid" class="evidencias-llantas-grid">
+                        <!-- Se generarán dinámicamente inputs para cada llanta crítica -->
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 24px;">
+                    <label for="observacionesLlantas">Observaciones Adicionales:</label>
+                    <textarea id="observacionesLlantas" 
+                              name="observacionesLlantas" 
+                              rows="3" 
+                              placeholder="Describa cualquier anomalía o detalle importante sobre las llantas..."></textarea>
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="btn btn-success" onclick="guardarModulo('llantas')">
+                        ✓ Guardar y Volver
+                    </button>
+                </div>
+            </section>
+
+            <!-- MÓDULO: Carrocería -->
+            <section id="moduloDetallecarroceria" class="card modulo-detalle" style="display: none;">
+                <div class="modulo-header">
+                    <h2>🚌 Carrocería</h2>
+                    <button type="button" class="btn-close-modulo" onclick="cerrarModulo()">✕</button>
+                </div>
+                
+                <p class="info-text" id="carroceriaInfoNOK" style="display: none; background-color: #fee2e2; border-left-color: #ef4444;">
+                    ⚠️ <strong>Atención:</strong> Se detectaron elementos MALOS. Debe adjuntar evidencia fotográfica obligatoriamente.
+                </p>
+
+                <div class="inspection-grid">
+                    <div class="form-group">
+                        <label for="carroceriaFaldones">Faldones: *</label>
+                        <select id="carroceriaFaldones" name="carroceriaFaldones" class="carroceria-select" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="carroceriaVidrios">Vidrios: *</label>
+                        <select id="carroceriaVidrios" name="carroceriaVidrios" class="carroceria-select" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="carroceriaEspejos">Espejos: *</label>
+                        <select id="carroceriaEspejos" name="carroceriaEspejos" class="carroceria-select" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Evidencias Fotográficas para Carrocería -->
+                <div id="carroceriaEvidenciasSection" style="margin-top: 24px;">
+                    <div class="form-group">
+                        <label for="evidenciasCarroceria">
+                            📸 Evidencias Fotográficas:
+                            <span id="carroceriaEvidenciaRequerida" style="display: none; color: #ef4444; font-weight: bold;"> (OBLIGATORIO)</span>
+                        </label>
+                        <input type="file" 
+                               id="evidenciasCarroceria" 
+                               name="evidenciasCarroceria" 
+                               accept="image/*" 
+                               multiple 
+                               capture="environment">
+                        <small>Adjunte fotos de los elementos con problemas</small>
+                    </div>
+                    <div id="previewEvidenciasCarroceria" class="preview-container"></div>
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="btn btn-success" onclick="guardarModulo('carroceria')">
+                        ✓ Guardar y Volver
+                    </button>
+                </div>
+            </section>
+
+            <!-- MÓDULO: Sistema de Luces y Pitos -->
+            <section id="moduloDetalleluces" class="card modulo-detalle" style="display: none;">
+                <div class="modulo-header">
+                    <h2>💡 Sistema de Luces y Pitos</h2>
+                    <button type="button" class="btn-close-modulo" onclick="cerrarModulo()">✕</button>
+                </div>
+                
+                <div class="inspection-grid">
+                    <div class="form-group">
+                        <label for="lucesMedias">Luces Medias: *</label>
+                        <select id="lucesMedias" name="lucesMedias" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="lucesAltas">Luces Altas: *</label>
+                        <select id="lucesAltas" name="lucesAltas" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="lucesPosicionamiento">Luces Posicionamiento: *</label>
+                        <select id="lucesPosicionamiento" name="lucesPosicionamiento" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="lucesReversa">Luces Reversa: *</label>
+                        <select id="lucesReversa" name="lucesReversa" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="lucesStop">Luces Stop: *</label>
+                        <select id="lucesStop" name="lucesStop" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pito">Pito: *</label>
+                        <select id="pito" name="pito" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pitoServicio">Pito de Servicio: *</label>
+                        <select id="pitoServicio" name="pitoServicio" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="btn btn-success" onclick="guardarModulo('luces')">
+                        ✓ Guardar y Volver
+                    </button>
+                </div>
+            </section>
+
+            <!-- MÓDULO: Señalización y Emblemas -->
+            <section id="moduloDetallesenalizacion" class="card modulo-detalle" style="display: none;">
+                <div class="modulo-header">
+                    <h2>🔆 Señalización y Emblemas</h2>
+                    <button type="button" class="btn-close-modulo" onclick="cerrarModulo()">✕</button>
+                </div>
+                
+                <div class="inspection-grid">
+                    <div class="form-group">
+                        <label for="cintasReflectivasLaterales">Cintas Reflectivas Laterales: *</label>
+                        <select id="cintasReflectivasLaterales" name="cintasReflectivasLaterales" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="cintasReflectivasTrasera">Cintas Reflectivas Trasera: *</label>
+                        <select id="cintasReflectivasTrasera" name="cintasReflectivasTrasera" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="emblemasLaterales">Emblemas Laterales: *</label>
+                        <select id="emblemasLaterales" name="emblemasLaterales" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="emblemasFrontales">Emblemas Frontales: *</label>
+                        <select id="emblemasFrontales" name="emblemasFrontales" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="emblemasTraseros">Emblemas Traseros: *</label>
+                        <select id="emblemasTraseros" name="emblemasTraseros" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="btn btn-success" onclick="guardarModulo('senalizacion')">
+                        ✓ Guardar y Volver
+                    </button>
+                </div>
+            </section>
+
+            <!-- MÓDULO: Equipamiento de Seguridad -->
+            <section id="moduloDetalleseguridad" class="card modulo-detalle" style="display: none;">
+                <div class="modulo-header">
+                    <h2>🧯 Equipamiento de Seguridad</h2>
+                    <button type="button" class="btn-close-modulo" onclick="cerrarModulo()">✕</button>
+                </div>
+                
+                <div class="inspection-grid">
+                    <div class="form-group">
+                        <label for="extintoresCabina">Extintores Cabina: *</label>
+                        <select id="extintoresCabina" name="extintoresCabina" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="extintoresBodega">Extintores Bodega: *</label>
+                        <select id="extintoresBodega" name="extintoresBodega" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="tomaCorrienteEspalda">Toma Corriente Espalda: *</label>
+                        <select id="tomaCorrienteEspalda" name="tomaCorrienteEspalda" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="tomaCorrienteSilla">Toma Corriente Silla: *</label>
+                        <select id="tomaCorrienteSilla" name="tomaCorrienteSilla" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="btn btn-success" onclick="guardarModulo('seguridad')">
+                        ✓ Guardar y Volver
+                    </button>
+                </div>
+            </section>
+
+            <!-- MÓDULO: Documentación -->
+            <section id="moduloDetalledocumentacion" class="card modulo-detalle" style="display: none;">
+                <div class="modulo-header">
+                    <h2>📄 Documentación</h2>
+                    <button type="button" class="btn-close-modulo" onclick="cerrarModulo()">✕</button>
+                </div>
+                
+                <div class="inspection-grid">
+                    <div class="form-group">
+                        <label for="documentosSoat">SOAT: *</label>
+                        <select id="documentosSoat" name="documentosSoat" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="documentosRtm">RTM (Revisión Técnico Mecánica): *</label>
+                        <select id="documentosRtm" name="documentosRtm" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="documentosTarjetaOperacion">Tarjeta de Operación: *</label>
+                        <select id="documentosTarjetaOperacion" name="documentosTarjetaOperacion" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="licenciaConduccionConductor">Licencia de Conducción Conductor: *</label>
+                        <select id="licenciaConduccionConductor" name="licenciaConduccionConductor" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="BUENO">✅ BUENO</option>
+                            <option value="MALO">❌ MALO</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="btn btn-success" onclick="guardarModulo('documentacion')">
+                        ✓ Guardar y Volver
+                    </button>
+                </div>
+            </section>
+
+            <!-- PASO 3: Firmas y Evidencias -->
+            <!-- PASO 3: Firmas y Evidencias -->
+            <section id="seccionFirmas" class="card" style="display: none;">
+                <h2>✍️ Firmas y Evidencias</h2>
+                
+                <div class="signature-row">
+                    <div class="signature-group">
+                        <label>Firma del Conductor: *</label>
+                        <div class="signature-pad-container">
+                            <canvas id="firmaConductor" width="400" height="200"></canvas>
+                            <button type="button" class="btn-clear-signature" onclick="limpiarFirma('firmaConductor')">🗑️ Limpiar</button>
+                        </div>
+                    </div>
+                    <div class="signature-group">
+                        <label>Firma del Inspector: *</label>
+                        <div class="signature-pad-container">
+                            <canvas id="firmaInspector" width="400" height="200"></canvas>
+                            <button type="button" class="btn-clear-signature" onclick="limpiarFirma('firmaInspector')">🗑️ Limpiar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 24px;">
+                    <label for="evidencias">📸 Evidencias Fotográficas (opcional):</label>
+                    <input type="file" 
+                           id="evidencias" 
+                           name="evidencias" 
+                           accept="image/*" 
+                           multiple 
+                           capture="environment">
+                    <small>Puedes seleccionar múltiples fotos</small>
+                </div>
+                <div id="previewEvidencias" class="preview-container"></div>
+
+                <div class="actions">
+                    <button type="button" class="btn btn-secondary" onclick="volverAModulos()">
+                        ← Volver a Módulos
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        💾 Guardar Inspección Completa
+                    </button>
+                </div>
+            </section>
+        </form>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+            <div class="spinner"></div>
+            <p>Guardando inspección...</p>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <!-- Modal de Consulta de Inspecciones -->
+    <div id="modalConsultaInspecciones" class="modal" style="display: none;">
+        <div class="modal-content modal-wide">
+            <div class="modal-header">
+                <h2>📋 Consultar Inspecciones Anteriores</h2>
+                <button type="button" class="btn-close-modal" onclick="cerrarConsultaInspecciones()">✕</button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Filtros de Búsqueda -->
+                <div class="filtros-consulta">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="filtroBus">Bus (Número/Placa):</label>
+                            <input type="text" id="filtroBus" placeholder="Buscar por número o placa...">
+                        </div>
+                        <div class="form-group">
+                            <label for="filtroFechaDesde">Fecha Desde:</label>
+                            <input type="date" id="filtroFechaDesde">
+                        </div>
+                        <div class="form-group">
+                            <label for="filtroFechaHasta">Fecha Hasta:</label>
+                            <input type="date" id="filtroFechaHasta">
+                        </div>
+                        <div class="form-group">
+                            <label for="filtroHallazgos">Filtrar por:</label>
+                            <select id="filtroHallazgos">
+                                <option value="todas">Todas las inspecciones</option>
+                                <option value="criticas">Solo con llantas críticas</option>
+                                <option value="malos">Solo con elementos MALOS</option>
+                                <option value="hallazgos">Con hallazgos (críticas o MALOS)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button type="button" class="btn btn-primary" onclick="buscarInspecciones()">
+                            🔍 Buscar
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="limpiarFiltros()">
+                            🔄 Limpiar Filtros
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Resultados de Búsqueda -->
+                <div id="resultadosInspecciones" class="resultados-inspecciones">
+                    <p class="info-text">Use los filtros para buscar inspecciones anteriores</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Detalle de Inspección -->
+    <div id="modalDetalleInspeccion" class="modal" style="display: none;">
+        <div class="modal-content modal-wide">
+            <div class="modal-header">
+                <h2>🔍 Detalle de Inspección</h2>
+                <button type="button" class="btn-close-modal" onclick="cerrarDetalleInspeccion()">✕</button>
+            </div>
+            <div class="modal-body" id="detalleInspeccionContent">
+                <!-- Se llenará dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Registrar Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registrado:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Error al registrar Service Worker:', error);
+                    });
+            });
+        }
+
+        // Detectar instalación de PWA
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Mostrar notificación para instalar app
+            const installToast = document.createElement('div');
+            installToast.className = 'install-toast';
+            installToast.innerHTML = `
+                <div class="install-toast-content">
+                    <span>📱 Instalar PreViajes como aplicación</span>
+                    <button onclick="instalarApp()" class="btn-install-toast">Instalar</button>
+                    <button onclick="this.parentElement.parentElement.remove()" class="btn-close-toast">✕</button>
+                </div>
+            `;
+            document.body.appendChild(installToast);
+        });
+
+        function instalarApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('App instalada');
+                    }
+                    deferredPrompt = null;
+                    document.querySelector('.install-toast')?.remove();
+                });
+            }
+        }
+    </script>
+</body>
+</html>
