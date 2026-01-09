@@ -155,32 +155,6 @@ function guardarInspeccion(data) {
     return respuestaError('Error al guardar inspección: ' + error.message);
   }
 }
-          llanta.media,
-          llanta.interna,
-          llanta.promedio,
-          llanta.estado,
-          llanta.critica ? 'SI' : 'NO',
-          llanta.evidenciaUrls ? llanta.evidenciaUrls.join(', ') : ''
-        ];
-        sheetLlantas.appendRow(datosLlanta);
-      });
-    }
-    
-    // 3. Guardar archivos en Drive (fotos, firma)
-    if (data.archivos && data.archivos.length > 0) {
-      guardarArchivosEnDrive(idInspeccion, data.archivos);
-    }
-    
-    return respuestaExito({
-      mensaje: 'Inspección guardada exitosamente',
-      idInspeccion: idInspeccion,
-      timestamp: timestamp.toISOString()
-    });
-    
-  } catch (error) {
-    return respuestaError('Error al guardar inspección: ' + error.message);
-  }
-}
 
 // ========================================
 // CONSULTAR INSPECCIONES
