@@ -386,6 +386,7 @@ function cerrarModulo() {
         console.log('🎯 Elemento a ocultar:', `moduloDetalle${moduloActual}`, 'Encontrado:', !!elementoModulo);
         if (elementoModulo) {
             elementoModulo.style.display = 'none';
+            elementoModulo.style.visibility = 'hidden';
             console.log('✅ Módulo ocultado');
         }
     }
@@ -394,11 +395,20 @@ function cerrarModulo() {
     console.log('🎯 Sección módulos:', !!seccionModulos);
     if (seccionModulos) {
         seccionModulos.style.display = 'block';
+        seccionModulos.style.visibility = 'visible';
+        seccionModulos.style.opacity = '1';
+        // Forzar reflow
+        seccionModulos.offsetHeight;
         console.log('✅ Sección módulos mostrada. Display:', seccionModulos.style.display);
     }
     
     moduloActual = null;
-    window.scrollTo(0, 0);
+    
+    // Scroll con delay para móviles
+    setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
+    
     console.log('✅ cerrarModulo() completado');
 }
 
