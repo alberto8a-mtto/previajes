@@ -1352,111 +1352,33 @@ async function buscarInspecciones() {
     resultadosDiv.innerHTML = '<p class="info-text">🔍 Buscando inspecciones...</p>';
     
     try {
+        console.log('🔍 Consultando inspecciones desde Google Sheets...');
+        
         // Llamar a Google Apps Script para obtener inspecciones
-        const url = `${SCRIPT_URL}?action=getInspecciones&bus=${encodeURIComponent(filtroBus)}&desde=${filtroDesde}&hasta=${filtroHasta}&hallazgos=${filtroHallazgos}`;
-        const response = await fetch(url);
+        const params = new URLSearchParams({
+            action: 'consultarInspecciones',
+            placa: filtroBus,
+            fechaInicio: filtroDesde,
+            fechaFin: filtroHasta,
+            estado: filtroHallazgos === 'todas' ? '' : filtroHallazgos
+        });
+        
+        const response = await fetch(`${SCRIPT_URL}?${params.toString()}`);
         const data = await response.json();
         
-        if (data.success && data.inspecciones.length > 0) {
-            mostrarResultadosInspecciones(data.inspecciones, filtroHallazgos);
+        console.log('📊 Respuesta del servidor:', data);
+        
+        if (data.success && data.data && data.data.inspecciones && data.data.inspecciones.length > 0) {
+            console.log('✅ Inspecciones encontradas:', data.data.inspecciones.length);
+            mostrarResultadosInspecciones(data.data.inspecciones, filtroHallazgos);
         } else {
+            console.log('⚠️ No se encontraron inspecciones');
             resultadosDiv.innerHTML = '<p class="info-text">❌ No se encontraron inspecciones con los criterios especificados</p>';
         }
     } catch (error) {
-        console.error('Error al buscar inspecciones:', error);
-        
-        // Datos de ejemplo para testing
-        const inspeccionesEjemplo = generarInspeccionesEjemplo();
-        const inspeccionesFiltradas = filtrarInspeccionesLocales(inspeccionesEjemplo, filtroBus, filtroDesde, filtroHasta, filtroHallazgos);
-        
-        if (inspeccionesFiltradas.length > 0) {
-            mostrarResultadosInspecciones(inspeccionesFiltradas, filtroHallazgos);
-        } else {
-            resultadosDiv.innerHTML = '<p class="info-text">❌ No se encontraron inspecciones con los criterios especificados</p>';
-        }
+        console.error('❌ Error al buscar inspecciones:', error);
+        resultadosDiv.innerHTML = `<p class="info-text" style="color: #dc2626;">❌ Error al conectar con el servidor: ${error.message}</p>`;
     }
-}
-
-function generarInspeccionesEjemplo() {
-    const hoy = new Date();
-    return [
-        {
-            id: 'INS001',
-            fecha: new Date(hoy.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            numeroInterno: '101',
-            placa: 'ABC123',
-            conductor: 'Juan Pérez',
-            km: 150000,
-            llantasCriticas: 3,
-            elementosMalos: 2,
-            llantasDetalle: [
-                { numero: 5, externa: 2.5, media: 2.8, interna: 2.2 },
-                { numero: 12, externa: 2.9, media: 2.7, interna: 2.6 },
-                { numero: 18, externa: 1.8, media: 2.1, interna: 2.4 }
-            ],
-            malosDetalle: ['Faldones', 'Vidrios']
-        },
-        {
-            id: 'INS002',
-            fecha: new Date(hoy.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-            numeroInterno: '102',
-            placa: 'DEF456',
-            conductor: 'María González',
-            km: 125000,
-            llantasCriticas: 0,
-            elementosMalos: 1,
-            llantasDetalle: [],
-            malosDetalle: ['Luces Stop']
-        },
-        {
-            id: 'INS003',
-            fecha: new Date(hoy.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-            numeroInterno: '101',
-            placa: 'ABC123',
-            conductor: 'Carlos Rodríguez',
-            km: 148500,
-            llantasCriticas: 1,
-            elementosMalos: 0,
-            llantasDetalle: [
-                { numero: 22, externa: 2.4, media: 2.6, interna: 2.9 }
-            ],
-            malosDetalle: []
-        }
-    ];
-}
-
-function filtrarInspeccionesLocales(inspecciones, bus, desde, hasta, hallazgos) {
-    let filtradas = inspecciones;
-    
-    // Filtrar por bus
-    if (bus) {
-        filtradas = filtradas.filter(i => 
-            i.numeroInterno.includes(bus) || i.placa.toLowerCase().includes(bus.toLowerCase())
-        );
-    }
-    
-    // Filtrar por fechas
-    if (desde) {
-        const fechaDesde = new Date(desde);
-        filtradas = filtradas.filter(i => new Date(i.fecha) >= fechaDesde);
-    }
-    
-    if (hasta) {
-        const fechaHasta = new Date(hasta);
-        fechaHasta.setHours(23, 59, 59);
-        filtradas = filtradas.filter(i => new Date(i.fecha) <= fechaHasta);
-    }
-    
-    // Filtrar por hallazgos
-    if (hallazgos === 'criticas') {
-        filtradas = filtradas.filter(i => i.llantasCriticas > 0);
-    } else if (hallazgos === 'malos') {
-        filtradas = filtradas.filter(i => i.elementosMalos > 0);
-    } else if (hallazgos === 'hallazgos') {
-        filtradas = filtradas.filter(i => i.llantasCriticas > 0 || i.elementosMalos > 0);
-    }
-    
-    return filtradas;
 }
 
 function mostrarResultadosInspecciones(inspecciones, filtroHallazgos) {

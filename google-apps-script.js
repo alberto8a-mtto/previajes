@@ -185,35 +185,89 @@ function guardarInspeccion(data) {
 // ========================================
 function consultarInspecciones(data) {
   try {
-    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
-    const sheet = ss.getSheetByName(SHEETS.INSPECCIONES);
+    Logger.log('=== Consultando inspecciones ===');
+    Logger.log('Filtros: ' + JSON.stringify(data));
     
-    if (!sheet) {
+    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    const sheetInspecciones = ss.getSheetByName(SHEETS.INSPECCIONES);
+    const sheetLlantas = ss.getSheetByName(SHEETS.LLANTAS);
+    
+    if (!sheetInspecciones) {
+      Logger.log('No existe la hoja de Inspecciones');
       return respuestaExito({ inspecciones: [] });
     }
     
-    const datos = sheet.getDataRange().getValues();
-    const headers = datos[0];
-    const filas = datos.slice(1);
+    const datosInsp = sheetInspecciones.getDataRange().getValues();
+    if (datosInsp.length <= 1) {
+      Logger.log('No hay inspecciones registradas');
+      return respuestaExito({ inspecciones: [] });
+    }
     
-    // Filtrar según criterios
+    const headers = datosInsp[0];
+    const filas = datosInsp.slice(1);
+    
+    // Obtener datos de llantas si existe la hoja
+    const datosLlantas = sheetLlantas ? sheetLlantas.getDataRange().getValues() : [];
+    
+    // Mapear inspecciones con sus detalles
     let inspeccionesFiltradas = filas.map(fila => {
+      const idInspeccion = fila[0];
+      const carroceria = JSON.parse(fila[8] || '{}');
+      const mecanico = JSON.parse(fila[9] || '{}');
+      const luces = JSON.parse(fila[10] || '{}');
+      const seguridad = JSON.parse(fila[11] || '{}');
+      const vidrios = JSON.parse(fila[12] || '{}');
+      
+      // Obtener llantas de esta inspección
+      const llantasInspeccion = datosLlantas
+        .filter(llanta => llanta[0] === idInspeccion)
+        .map(llanta => ({
+          numero: llanta[3],
+          externa: llanta[4],
+          media: llanta[5],
+          interna: llanta[6],
+          promedio: llanta[7],
+          estado: llanta[8]
+        }));
+      
+      // Contar llantas críticas (promedio < 3mm)
+      const llantasCriticas = llantasInspeccion.filter(l => 
+        Math.min(l.externa, l.media, l.interna) < 3
+      ).length;
+      
+      // Contar elementos MALOS
+      let elementosMalos = 0;
+      let malosDetalle = [];
+      
+      // Revisar cada categoría
+      Object.entries({...carroceria, ...mecanico, ...luces, ...seguridad, ...vidrios}).forEach(([key, value]) => {
+        if (value === 'MALO') {
+          elementosMalos++;
+          malosDetalle.push(key);
+        }
+      });
+      
       return {
-        id: fila[0],
+        id: idInspeccion,
         fecha: fila[1],
         placa: fila[2],
         numeroInterno: fila[3],
         tipoVehiculo: fila[4],
         odometro: fila[5],
         inspector: fila[6],
-        estadoGeneral: fila[7]
+        estadoGeneral: fila[7],
+        llantasCriticas: llantasCriticas,
+        elementosMalos: elementosMalos,
+        llantasDetalle: llantasInspeccion.filter(l => Math.min(l.externa, l.media, l.interna) < 3),
+        malosDetalle: malosDetalle
       };
     });
     
     // Aplicar filtros
     if (data.placa) {
       inspeccionesFiltradas = inspeccionesFiltradas.filter(
-        insp => insp.placa.toUpperCase().includes(data.placa.toUpperCase())
+        insp => insp.placa.toUpperCase().includes(data.placa.toUpperCase()) ||
+                insp.numeroInterno.includes(data.placa)
       );
     }
     
@@ -226,23 +280,32 @@ function consultarInspecciones(data) {
     
     if (data.fechaFin) {
       const fechaFin = new Date(data.fechaFin);
+      fechaFin.setHours(23, 59, 59);
       inspeccionesFiltradas = inspeccionesFiltradas.filter(
         insp => new Date(insp.fecha) <= fechaFin
       );
     }
     
-    if (data.estado) {
-      inspeccionesFiltradas = inspeccionesFiltradas.filter(
-        insp => insp.estadoGeneral === data.estado
-      );
+    // Filtrar por tipo de hallazgos
+    if (data.estado && data.estado !== 'todas') {
+      if (data.estado === 'criticas') {
+        inspeccionesFiltradas = inspeccionesFiltradas.filter(i => i.llantasCriticas > 0);
+      } else if (data.estado === 'malos') {
+        inspeccionesFiltradas = inspeccionesFiltradas.filter(i => i.elementosMalos > 0);
+      } else if (data.estado === 'hallazgos') {
+        inspeccionesFiltradas = inspeccionesFiltradas.filter(i => i.llantasCriticas > 0 || i.elementosMalos > 0);
+      }
     }
     
     // Ordenar por fecha descendente
     inspeccionesFiltradas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
     
+    Logger.log('Inspecciones encontradas: ' + inspeccionesFiltradas.length);
+    
     return respuestaExito({ inspecciones: inspeccionesFiltradas });
     
   } catch (error) {
+    Logger.log('ERROR en consultarInspecciones: ' + error.message);
     return respuestaError('Error al consultar inspecciones: ' + error.message);
   }
 }
