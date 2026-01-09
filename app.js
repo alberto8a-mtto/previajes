@@ -1401,18 +1401,18 @@ function mostrarResultadosInspecciones(inspecciones, filtroHallazgos) {
         html += `
             <div class="inspeccion-item" onclick="verDetalleInspeccion('${inspeccion.id}')">
                 <div class="inspeccion-header">
-                    <div class="inspeccion-bus">🚍 Bus ${inspeccion.numeroInterno} - ${inspeccion.placa}</div>
+                    <div class="inspeccion-bus">#${inspeccion.numeroInterno} - ${inspeccion.placa}</div>
                     <div class="inspeccion-fecha">${fechaFormato}</div>
                 </div>
                 
                 <div class="inspeccion-info">
                     <div class="inspeccion-dato">
-                        <span class="inspeccion-dato-label">Conductor:</span>
-                        <span class="inspeccion-dato-valor">${inspeccion.conductor}</span>
+                        <span class="inspeccion-dato-label">Kilometraje:</span>
+                        <span class="inspeccion-dato-valor">${inspeccion.odometro ? inspeccion.odometro.toLocaleString() : '0'} km</span>
                     </div>
                     <div class="inspeccion-dato">
-                        <span class="inspeccion-dato-label">Kilometraje:</span>
-                        <span class="inspeccion-dato-valor">${inspeccion.km.toLocaleString()} km</span>
+                        <span class="inspeccion-dato-label">Inspector:</span>
+                        <span class="inspeccion-dato-valor">${inspeccion.inspector || 'N/A'}</span>
                     </div>
                 </div>
                 
