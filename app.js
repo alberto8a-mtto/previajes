@@ -1,5 +1,5 @@
 // Configuración de Google Apps Script
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbywzNriXF9lrBdC7Tq0c7yqleam94YU9tWr1NShkjSL93NdnsItHNISSG6dSMekX9q0/exec'; // Nueva implementación
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxzcIVNIlh4Wj9DWyfolotrVdqOxIbx1mIeuoWU-gD-MBqTOwTEfumzY0tqAkjjbz5O/exec'; // Nueva implementación
 
 // Base de datos
 let busesDB = [];
