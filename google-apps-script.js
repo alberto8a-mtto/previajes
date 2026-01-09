@@ -174,6 +174,8 @@ function consultarInspecciones(data) {
     }
     
     const datosInsp = sheetInspecciones.getDataRange().getValues();
+    Logger.log('Total filas en sheet: ' + datosInsp.length);
+    
     if (datosInsp.length <= 1) {
       Logger.log('No hay inspecciones registradas');
       return respuestaExito({ inspecciones: [] });
@@ -181,6 +183,7 @@ function consultarInspecciones(data) {
     
     const headers = datosInsp[0];
     const filas = datosInsp.slice(1);
+    Logger.log('Filas de datos a procesar: ' + filas.length);
     
     // Obtener datos de llantas si existe la hoja
     const datosLlantas = sheetLlantas ? sheetLlantas.getDataRange().getValues() : [];
@@ -188,11 +191,20 @@ function consultarInspecciones(data) {
     // Mapear inspecciones con sus detalles
     let inspeccionesFiltradas = filas.map(fila => {
       const idInspeccion = fila[0];
-      const carroceria = JSON.parse(fila[8] || '{}');
-      const mecanico = JSON.parse(fila[9] || '{}');
-      const luces = JSON.parse(fila[10] || '{}');
-      const seguridad = JSON.parse(fila[11] || '{}');
-      const vidrios = JSON.parse(fila[12] || '{}');
+      Logger.log('Procesando inspección: ' + idInspeccion);
+      
+      // Parsear JSON con protección contra errores
+      let carroceria = {};
+      let mecanico = {};
+      let luces = {};
+      let seguridad = {};
+      let vidrios = {};
+      
+      try { carroceria = JSON.parse(fila[8] || '{}'); } catch(e) { Logger.log('Error parseando carroceria: ' + e); }
+      try { mecanico = JSON.parse(fila[9] || '{}'); } catch(e) { Logger.log('Error parseando mecanico: ' + e); }
+      try { luces = JSON.parse(fila[10] || '{}'); } catch(e) { Logger.log('Error parseando luces: ' + e); }
+      try { seguridad = JSON.parse(fila[11] || '{}'); } catch(e) { Logger.log('Error parseando seguridad: ' + e); }
+      try { vidrios = JSON.parse(fila[12] || '{}'); } catch(e) { Logger.log('Error parseando vidrios: ' + e); }
       
       // Obtener llantas de esta inspección
       const llantasInspeccion = datosLlantas
