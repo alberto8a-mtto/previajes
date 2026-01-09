@@ -1,4 +1,4 @@
-const CACHE_NAME = 'previajes-v2';
+const CACHE_NAME = 'previajes-v3';
 const BASE_PATH = '/previajes';
 const urlsToCache = [
   BASE_PATH + '/',
@@ -13,6 +13,9 @@ const urlsToCache = [
 // Instalación del Service Worker
 self.addEventListener('install', event => {
   console.log('Service Worker: Instalando...');
+  // Forzar activación inmediata
+  self.skipWaiting();
+  
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
@@ -29,16 +32,21 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   console.log('Service Worker: Activando...');
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cache => {
-          if (cache !== CACHE_NAME) {
-            console.log('Service Worker: Limpiando caché antigua');
-            return caches.delete(cache);
-          }
-        })
-      );
-    })
+    Promise.all([
+      // Tomar control de todas las páginas inmediatamente
+      self.clients.claim(),
+      // Limpiar cachés antiguas
+      caches.keys().then(cacheNames => {
+        return Promise.all(
+          cacheNames.map(cache => {
+            if (cache !== CACHE_NAME) {
+              console.log('Service Worker: Limpiando caché antigua:', cache);
+              return caches.delete(cache);
+            }
+          })
+        );
+      })
+    ])
   );
 });
 
