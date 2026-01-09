@@ -379,12 +379,27 @@ function abrirModulo(modulo) {
 }
 
 function cerrarModulo() {
+    console.log('🔙 cerrarModulo() llamado. moduloActual:', moduloActual);
+    
     if (moduloActual) {
-        document.getElementById(`moduloDetalle${moduloActual}`).style.display = 'none';
+        const elementoModulo = document.getElementById(`moduloDetalle${moduloActual}`);
+        console.log('🎯 Elemento a ocultar:', `moduloDetalle${moduloActual}`, 'Encontrado:', !!elementoModulo);
+        if (elementoModulo) {
+            elementoModulo.style.display = 'none';
+            console.log('✅ Módulo ocultado');
+        }
     }
-    document.getElementById('seccionModulos').style.display = 'block';
+    
+    const seccionModulos = document.getElementById('seccionModulos');
+    console.log('🎯 Sección módulos:', !!seccionModulos);
+    if (seccionModulos) {
+        seccionModulos.style.display = 'block';
+        console.log('✅ Sección módulos mostrada. Display:', seccionModulos.style.display);
+    }
+    
     moduloActual = null;
     window.scrollTo(0, 0);
+    console.log('✅ cerrarModulo() completado');
 }
 
 function guardarModulo(modulo) {
