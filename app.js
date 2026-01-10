@@ -1115,6 +1115,9 @@ async function guardarInspeccion() {
     // Obtener conductor
     const conductorInput = document.getElementById('conductorId').value;
     
+    // Obtener inspector
+    const inspectorNombre = document.getElementById('inspectorNombre').value.trim() || 'Inspector PreViajes';
+    
     // Recopilar datos en el formato esperado por Google Apps Script
     const datos = {
         action: 'guardarInspeccion',
@@ -1124,7 +1127,8 @@ async function guardarInspeccion() {
         numeroInterno: document.getElementById('numeroInterno').value,
         tipoVehiculo: 'Bus', // Asumiendo que siempre es bus
         odometro: parseInt(document.getElementById('km').value) || 0,
-        inspector: 'Inspector PreViajes', // Puedes modificar esto
+        inspector: inspectorNombre, // Nombre del inspector ingresado
+        tecnico: inspectorNombre, // Compatibilidad con Google Apps Script
         estadoGeneral: estadoGeneral,
         
         // Llantas
