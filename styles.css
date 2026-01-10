@@ -99,6 +99,8 @@ header p {
     margin-bottom: 24px;
     box-shadow: var(--shadow);
     border: 1px solid var(--border-color);
+    position: relative;
+    z-index: auto; /* No interfiere con elementos internos de mayor z-index */
 }
 
 .card.active-section {
@@ -181,7 +183,7 @@ header p {
     border-radius: 16px;
     padding: 24px 16px;
     text-align: center;
-    cursor: pointer;
+    cursor: pointer !important;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -190,6 +192,10 @@ header p {
     flex-direction: column;
     justify-content: center;
     touch-action: manipulation;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.05);
+    pointer-events: auto !important;
+    z-index: 10;
 }
 
 @media (min-width: 768px) {
@@ -286,6 +292,8 @@ header p {
 /* Módulo Detalle */
 .modulo-detalle {
     animation: fadeIn 0.3s ease;
+    position: relative;
+    z-index: auto; /* No interfiere con botones */
 }
 
 .modulo-header {
@@ -305,20 +313,36 @@ header p {
     background-color: var(--secondary-color);
     color: white;
     border: none;
-    width: 40px;
-    height: 40px;
+    width: 44px; /* Aumentado para mejor área táctil */
+    height: 44px; /* Aumentado para mejor área táctil */
+    min-width: 44px;
+    min-height: 44px;
     border-radius: 50%;
     font-size: 1.5rem;
-    cursor: pointer;
+    cursor: pointer !important;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 100;
 }
 
-.btn-close-modulo:hover {
+.btn-close-modulo:hover,
+.btn-close-modulo:active,
+.btn-close-modulo:focus {
     background-color: var(--danger-color);
     transform: rotate(90deg);
+    pointer-events: auto !important;
+}
+
+.btn-close-modulo:active {
+    transform: rotate(90deg) scale(0.95);
 }
 
 @keyframes fadeIn {
@@ -384,6 +408,8 @@ header p {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;
     margin: 24px 0;
+    position: relative;
+    z-index: 1; /* Mantiene el grid en capa baja */
 }
 
 .llanta-item {
@@ -392,6 +418,8 @@ header p {
     border-radius: 12px;
     padding: 16px;
     transition: all 0.3s ease;
+    position: relative;
+    z-index: 1; /* Mantiene los items en capa baja */
 }
 
 .llanta-item:hover {
@@ -559,6 +587,8 @@ header p {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 16px;
+    position: relative;
+    z-index: 1; /* Mantiene el grid en capa baja */
 }
 
 .inspection-grid select {
@@ -605,18 +635,35 @@ header p {
 
 .btn-clear-signature {
     margin-top: 8px;
-    padding: 8px 16px;
+    padding: 12px 20px;
+    min-height: 44px;
     background-color: var(--secondary-color);
     color: white;
     border: none;
     border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
+    cursor: pointer !important;
+    font-size: 16px;
+    font-weight: 600;
     transition: all 0.2s ease;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 50;
 }
 
-.btn-clear-signature:hover {
+.btn-clear-signature:hover,
+.btn-clear-signature:active,
+.btn-clear-signature:focus {
     background-color: #475569;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    pointer-events: auto !important;
+}
+
+.btn-clear-signature:active {
+    transform: translateY(0);
 }
 
 /* Evidencias Fotográficas */
@@ -645,18 +692,35 @@ header p {
 .btn-remove-evidence {
     margin-top: 8px;
     width: 100%;
-    padding: 6px;
+    padding: 10px;
+    min-height: 40px;
     background-color: var(--danger-color);
     color: white;
     border: none;
     border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.85rem;
+    cursor: pointer !important;
+    font-size: 14px;
+    font-weight: 600;
     transition: all 0.2s ease;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 50;
 }
 
-.btn-remove-evidence:hover {
+.btn-remove-evidence:hover,
+.btn-remove-evidence:active,
+.btn-remove-evidence:focus {
     background-color: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    pointer-events: auto !important;
+}
+
+.btn-remove-evidence:active {
+    transform: translateY(0);
 }
 
 .evidence-name {
@@ -695,6 +759,8 @@ header p {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;
     margin-top: 16px;
+    position: relative;
+    z-index: 1; /* Mantiene el grid en capa baja */
 }
 
 .evidencia-llanta-item {
@@ -780,25 +846,41 @@ header p {
 
 .btn-remove-mini {
     position: absolute;
-    top: 2px;
-    right: 2px;
-    width: 20px;
-    height: 20px;
+    top: 4px;
+    right: 4px;
+    width: 28px; /* Aumentado para mejor táctil */
+    height: 28px; /* Aumentado para mejor táctil */
+    min-width: 28px;
+    min-height: 28px;
     background-color: #ef4444;
     color: white;
     border: none;
     border-radius: 50%;
-    cursor: pointer;
-    font-size: 0.7rem;
+    cursor: pointer !important;
+    font-size: 0.8rem;
+    font-weight: bold;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    pointer-events: auto !important;
+    z-index: 60;
 }
 
-.btn-remove-mini:hover {
+.btn-remove-mini:hover,
+.btn-remove-mini:active,
+.btn-remove-mini:focus {
     background-color: #dc2626;
-    transform: scale(1.1);
+    transform: scale(1.15);
+    pointer-events: auto !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.btn-remove-mini:active {
+    transform: scale(1.05);
 }
 
 /* Buttons */
@@ -808,6 +890,15 @@ header p {
     justify-content: center;
     margin-top: 30px;
     flex-wrap: wrap;
+    align-items: stretch; /* Asegura que todos los botones tengan la misma altura */
+    margin-left: -24px; /* Compensa el padding del card */
+    margin-right: -24px; /* Compensa el padding del card */
+    margin-bottom: -24px; /* Compensa el padding del card */
+    padding: 24px; /* Agrega padding interno */
+    background-color: transparent; /* Asegura que el fondo sea transparente */
+    position: relative; /* Para z-index */
+    z-index: 50; /* Asegura que esté visible */
+    pointer-events: auto; /* Asegura que sea interactivo */
 }
 
 .btn {
@@ -816,14 +907,44 @@ header p {
     border-radius: 8px;
     font-size: 16px; /* Tamaño mínimo para iOS */
     font-weight: 600;
-    cursor: pointer;
+    cursor: pointer !important;
     transition: all 0.3s ease;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     min-height: 48px; /* Mejor target táctil */
+    min-width: 200px; /* Ancho mínimo para mejor área táctil */
     touch-action: manipulation; /* Evita zoom en doble-tap */
+    user-select: none; /* Evita selección de texto */
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1); /* Feedback visual en mobile */
+    position: relative; /* Para asegurar que el z-index funcione */
+    flex: 1 1 auto; /* Permite que el botón crezca */
+    max-width: 100%; /* Permite que el botón crezca según contenido */
+    text-align: center; /* Centra el texto */
+    white-space: normal; /* Permite que el texto se divida si es necesario */
+    line-height: 1.5; /* Mejor espaciado de líneas */
+    pointer-events: auto !important; /* CRÍTICO: Asegura que sea clickeable */
+}
+
+/* Los elementos internos del botón no deben interceptar eventos */
+.btn *,
+.btn span,
+.btn svg,
+.btn-primary *,
+.btn-secondary *,
+.btn-success *,
+.btn-close-modulo *,
+.btn-clear-signature *,
+.btn-remove-evidence *,
+.btn-remove-mini *,
+.btn-consultar *,
+.btn-install-toast *,
+.btn-close-toast *,
+.modulo-card *,
+button * {
+    pointer-events: none !important; /* Evita que elementos internos capturen el click */
+    user-select: none;
 }
 
 @media (min-width: 768px) {
@@ -836,34 +957,58 @@ header p {
 .btn-primary {
     background-color: var(--primary-color);
     color: white;
+    z-index: 100; /* Asegura que esté sobre cualquier otro elemento */
+    pointer-events: auto !important; /* Asegura que sea clickeable */
 }
 
-.btn-primary:hover {
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus {
     background-color: var(--primary-light);
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
+    pointer-events: auto !important; /* Mantiene clickeable en todos los estados */
 }
 
 .btn-secondary {
     background-color: var(--secondary-color);
     color: white;
+    z-index: 100; /* Asegura que esté sobre cualquier otro elemento */
+    pointer-events: auto !important; /* Asegura que sea clickeable */
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover,
+.btn-secondary:active,
+.btn-secondary:focus {
     background-color: #475569;
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
+    pointer-events: auto !important; /* Mantiene clickeable en todos los estados */
 }
 
 .btn-success {
     background-color: var(--success-color);
     color: white;
+    z-index: 100; /* Asegura que esté sobre cualquier otro elemento */
+    pointer-events: auto !important; /* Asegura que sea clickeable */
 }
 
-.btn-success:hover {
+.btn-success:hover,
+.btn-success:active,
+.btn-success:focus {
     background-color: #059669;
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
+    pointer-events: auto !important; /* Mantiene clickeable en todos los estados */
+}
+
+/* Estado active para feedback táctil inmediato */
+.btn:active,
+.btn-primary:active,
+.btn-secondary:active,
+.btn-success:active {
+    transform: translateY(0px) !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
 }
 
 /* Loading Overlay */
@@ -974,10 +1119,16 @@ header p {
     
     .actions {
         flex-direction: column;
+        align-items: stretch; /* Asegura que los botones ocupen todo el ancho */
+        margin-left: -24px; /* Ajuste para tablet/mobile que coincide con el padding del card */
+        margin-right: -24px; /* Ajuste para tablet/mobile que coincide con el padding del card */
+        margin-bottom: -24px; /* Ajuste para tablet/mobile que coincide con el padding del card */
+        padding: 24px; /* Padding que coincide con el del card */
     }
     
     .btn {
         width: 100%;
+        max-width: 100%; /* Asegura que tome todo el ancho disponible en mobile */
     }
     
     .preview-container {
@@ -1018,6 +1169,14 @@ header p {
     .llanta-item {
         padding: 12px;
     }
+    
+    /* Ajuste específico para actions en pantallas pequeñas */
+    .actions {
+        margin-left: -16px; /* Compensa el padding del card en mobile pequeño */
+        margin-right: -16px; /* Compensa el padding del card en mobile pequeño */
+        margin-bottom: -16px; /* Compensa el padding del card en mobile pequeño */
+        padding: 16px; /* Padding que coincide con el del card */
+    }
 }
 
 @media print {
@@ -1047,21 +1206,36 @@ header p {
 .btn-consultar {
     background-color: white;
     color: var(--primary-color);
-    padding: 12px 24px;
-    border: none;
+    padding: 14px 28px;
+    min-height: 48px;
+    border: 2px solid var(--primary-color);
     border-radius: 8px;
-    font-size: 1rem;
+    font-size: 16px;
     font-weight: 600;
-    cursor: pointer;
+    cursor: pointer !important;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     white-space: nowrap;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 50;
 }
 
-.btn-consultar:hover {
-    background-color: #f1f5f9;
+.btn-consultar:hover,
+.btn-consultar:active,
+.btn-consultar:focus {
+    background-color: var(--primary-color);
+    color: white;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    pointer-events: auto !important;
+}
+
+.btn-consultar:active {
+    transform: translateY(0);
 }
 
 /* Modal Styles */
@@ -1393,17 +1567,32 @@ header p {
     background: var(--primary-color);
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 12px 24px;
+    min-height: 44px;
     border-radius: 8px;
-    font-size: 0.9rem;
+    font-size: 16px;
     font-weight: 600;
-    cursor: pointer;
+    cursor: pointer !important;
     white-space: nowrap;
-    transition: background 0.2s;
+    transition: all 0.2s;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 10001;
 }
 
-.btn-install-toast:hover {
+.btn-install-toast:hover,
+.btn-install-toast:active,
+.btn-install-toast:focus {
     background: var(--primary-light);
+    transform: scale(1.05);
+    pointer-events: auto !important;
+}
+
+.btn-install-toast:active {
+    transform: scale(0.98);
 }
 
 .btn-close-toast {
@@ -1411,18 +1600,34 @@ header p {
     border: none;
     font-size: 1.5rem;
     color: var(--secondary-color);
-    cursor: pointer;
-    padding: 0;
-    width: 24px;
-    height: 24px;
+    cursor: pointer !important;
+    padding: 4px;
+    min-width: 32px;
+    min-height: 32px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: color 0.2s;
+    transition: all 0.2s;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 10002;
 }
 
-.btn-close-toast:hover {
+.btn-close-toast:hover,
+.btn-close-toast:active,
+.btn-close-toast:focus {
     color: var(--text-color);
+    transform: rotate(90deg) scale(1.1);
+    pointer-events: auto !important;
+}
+
+.btn-close-toast:active {
+    transform: rotate(90deg) scale(1.0);
 }
 
 /* PWA - Standalone mode adjustments */
