@@ -1040,15 +1040,9 @@ function limpiarFormularioAutomatico() {
     document.getElementById('inspeccionForm').reset();
     inicializarFecha();
     
-    // Limpiar firmas
-    limpiarFirma('firmaConductor');
-    limpiarFirma('firmaInspector');
-    
     // Limpiar evidencias
-    evidenciasFiles = [];
     evidenciasCarroceria = [];
     evidenciasLlantas = {};
-    document.getElementById('previewEvidencias').innerHTML = '';
     
     // Limpiar estilos de selects
     const selects = document.querySelectorAll('select');
