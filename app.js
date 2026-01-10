@@ -5,12 +5,6 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxO2QkIUGFS8XHgn8Ttj
 let busesDB = [];
 let conductoresDB = [];
 
-// Canvas para firmas
-let firmaConductorCanvas, firmaConductorCtx;
-let firmaInspectorCanvas, firmaInspectorCtx;
-let firmandoConductor = false;
-let firmandoInspector = false;
-
 // Evidencias fotográficas
 let evidenciasFiles = [];
 
@@ -334,28 +328,6 @@ function volverAInfoGeneral() {
     document.getElementById('seccionInfoGeneral').style.display = 'block';
     document.getElementById('progressBar').style.display = 'none';
     document.getElementById('headerSubtitle').textContent = 'Inspección completa de vehículo - Todas las verificaciones';
-    
-    window.scrollTo(0, 0);
-}
-
-function irAFirmas() {
-    document.getElementById('seccionModulos').style.display = 'none';
-    document.getElementById('seccionFirmas').style.display = 'block';
-    document.getElementById('headerSubtitle').textContent = 'Firmas y Evidencias - Paso final';
-    
-    // Inicializar firmas y evidencias si no se han inicializado
-    if (!firmaConductorCanvas) {
-        inicializarFirmas();
-        configurarEvidencias();
-    }
-    
-    window.scrollTo(0, 0);
-}
-
-function volverAModulos() {
-    document.getElementById('seccionFirmas').style.display = 'none';
-    document.getElementById('seccionModulos').style.display = 'block';
-    document.getElementById('headerSubtitle').textContent = `Bus: ${document.getElementById('numeroInterno').value} - Seleccione módulo a inspeccionar`;
     
     window.scrollTo(0, 0);
 }
@@ -886,196 +858,14 @@ function obtenerDatosLlantas() {
 }
 
 // ============================================
-// FIRMAS DIGITALES
+// EVIDENCIAS FOTOGRÁFICAS (eliminadas - mejora productividad)
 // ============================================
-
-function inicializarFirmas() {
-    // Canvas Conductor
-    firmaConductorCanvas = document.getElementById('firmaConductor');
-    firmaConductorCtx = firmaConductorCanvas.getContext('2d');
-    configurarCanvas(firmaConductorCanvas, firmaConductorCtx);
-    
-    // Canvas Inspector
-    firmaInspectorCanvas = document.getElementById('firmaInspector');
-    firmaInspectorCtx = firmaInspectorCanvas.getContext('2d');
-    configurarCanvas(firmaInspectorCanvas, firmaInspectorCtx);
-    
-    // Eventos para Conductor
-    firmaConductorCanvas.addEventListener('mousedown', (e) => iniciarFirma(e, 'conductor'));
-    firmaConductorCanvas.addEventListener('mousemove', (e) => dibujarFirma(e, 'conductor'));
-    firmaConductorCanvas.addEventListener('mouseup', () => detenerFirma('conductor'));
-    firmaConductorCanvas.addEventListener('mouseleave', () => detenerFirma('conductor'));
-    
-    // Touch events para móvil - Conductor
-    firmaConductorCanvas.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        iniciarFirma(e.touches[0], 'conductor');
-    });
-    firmaConductorCanvas.addEventListener('touchmove', (e) => {
-        e.preventDefault();
-        dibujarFirma(e.touches[0], 'conductor');
-    });
-    firmaConductorCanvas.addEventListener('touchend', () => detenerFirma('conductor'));
-    
-    // Eventos para Inspector
-    firmaInspectorCanvas.addEventListener('mousedown', (e) => iniciarFirma(e, 'inspector'));
-    firmaInspectorCanvas.addEventListener('mousemove', (e) => dibujarFirma(e, 'inspector'));
-    firmaInspectorCanvas.addEventListener('mouseup', () => detenerFirma('inspector'));
-    firmaInspectorCanvas.addEventListener('mouseleave', () => detenerFirma('inspector'));
-    
-    // Touch events para móvil - Inspector
-    firmaInspectorCanvas.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        iniciarFirma(e.touches[0], 'inspector');
-    });
-    firmaInspectorCanvas.addEventListener('touchmove', (e) => {
-        e.preventDefault();
-        dibujarFirma(e.touches[0], 'inspector');
-    });
-    firmaInspectorCanvas.addEventListener('touchend', () => detenerFirma('inspector'));
-}
-
-function configurarCanvas(canvas, ctx) {
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    
-    // Fondo blanco
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-}
-
-function iniciarFirma(e, tipo) {
-    if (tipo === 'conductor') {
-        firmandoConductor = true;
-        const rect = firmaConductorCanvas.getBoundingClientRect();
-        firmaConductorCtx.beginPath();
-        firmaConductorCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-    } else {
-        firmandoInspector = true;
-        const rect = firmaInspectorCanvas.getBoundingClientRect();
-        firmaInspectorCtx.beginPath();
-        firmaInspectorCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-    }
-}
-
-function dibujarFirma(e, tipo) {
-    if (tipo === 'conductor' && !firmandoConductor) return;
-    if (tipo === 'inspector' && !firmandoInspector) return;
-    
-    if (tipo === 'conductor') {
-        const rect = firmaConductorCanvas.getBoundingClientRect();
-        firmaConductorCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-        firmaConductorCtx.stroke();
-    } else {
-        const rect = firmaInspectorCanvas.getBoundingClientRect();
-        firmaInspectorCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-        firmaInspectorCtx.stroke();
-    }
-}
-
-function detenerFirma(tipo) {
-    if (tipo === 'conductor') {
-        firmandoConductor = false;
-    } else {
-        firmandoInspector = false;
-    }
-}
-
-function limpiarFirma(canvasId) {
-    if (canvasId === 'firmaConductor') {
-        firmaConductorCtx.fillStyle = '#ffffff';
-        firmaConductorCtx.fillRect(0, 0, firmaConductorCanvas.width, firmaConductorCanvas.height);
-    } else {
-        firmaInspectorCtx.fillStyle = '#ffffff';
-        firmaInspectorCtx.fillRect(0, 0, firmaInspectorCanvas.width, firmaInspectorCanvas.height);
-    }
-}
-
-function obtenerFirmaBase64(canvasId) {
-    const canvas = document.getElementById(canvasId);
-    return canvas.toDataURL('image/png');
-}
-
-function firmaEstaVacia(canvasId) {
-    const canvas = document.getElementById(canvasId);
-    const ctx = canvas.getContext('2d');
-    const pixelData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-    
-    // Verificar si todos los píxeles son blancos
-    for (let i = 0; i < pixelData.length; i += 4) {
-        if (pixelData[i] !== 255 || pixelData[i+1] !== 255 || pixelData[i+2] !== 255) {
-            return false; // Hay al menos un píxel que no es blanco
-        }
-    }
-    return true;
-}
-
-// ============================================
-// EVIDENCIAS FOTOGRÁFICAS
-// ============================================
-
-function configurarEvidencias() {
-    const inputEvidencias = document.getElementById('evidencias');
-    inputEvidencias.addEventListener('change', function(e) {
-        evidenciasFiles = Array.from(e.target.files);
-        mostrarPreviewEvidencias();
-    });
-}
-
-function mostrarPreviewEvidencias() {
-    const previewContainer = document.getElementById('previewEvidencias');
-    previewContainer.innerHTML = '';
-    
-    if (evidenciasFiles.length === 0) return;
-    
-    evidenciasFiles.forEach((file, index) => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const div = document.createElement('div');
-            div.className = 'preview-item';
-            div.innerHTML = `
-                <img src="${e.target.result}" alt="Evidencia ${index + 1}">
-                <button type="button" class="btn-remove-evidence" onclick="eliminarEvidencia(${index})">
-                    🗑️ Eliminar
-                </button>
-                <span class="evidence-name">${file.name}</span>
-            `;
-            previewContainer.appendChild(div);
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-function eliminarEvidencia(index) {
-    evidenciasFiles.splice(index, 1);
-    mostrarPreviewEvidencias();
-    
-    // Actualizar el input file
-    const dataTransfer = new DataTransfer();
-    evidenciasFiles.forEach(file => dataTransfer.items.add(file));
-    document.getElementById('evidencias').files = dataTransfer.files;
-}
 
 // ============================================
 // VALIDAR Y GUARDAR INSPECCIÓN
 // ============================================
 
 function validarYGuardar() {
-    // Validar firmas
-    if (firmaEstaVacia('firmaConductor')) {
-        mostrarToast('❌ Falta la firma del conductor', 'error');
-        document.getElementById('firmaConductor').scrollIntoView({ behavior: 'smooth' });
-        return;
-    }
-    
-    if (firmaEstaVacia('firmaInspector')) {
-        mostrarToast('❌ Falta la firma del inspector', 'error');
-        document.getElementById('firmaInspector').scrollIntoView({ behavior: 'smooth' });
-        return;
-    }
-    
     // Validar que haya al menos un campo MALO identificado si es necesario
     const camposMALO = [];
     const selects = document.querySelectorAll('select');
@@ -1176,10 +966,7 @@ async function guardarInspeccion() {
         },
         
         // Observaciones
-        observaciones: document.getElementById('observacionesLlantas') ? document.getElementById('observacionesLlantas').value : '',
-        
-        // Firma (solo una por ahora)
-        firmaUrl: obtenerFirmaBase64('firmaInspector')
+        observaciones: document.getElementById('observacionesLlantas') ? document.getElementById('observacionesLlantas').value : ''
     };
     
     // Mostrar loading

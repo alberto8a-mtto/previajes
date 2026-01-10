@@ -156,8 +156,8 @@
                     <button type="button" class="btn btn-secondary" onclick="volverAInfoGeneral()">
                         ← Volver
                     </button>
-                    <button type="button" class="btn btn-primary" onclick="irAFirmas()">
-                        Continuar a Firmas y Evidencias →
+                    <button type="submit" class="btn btn-primary">
+                        💾 Guardar Inspección Completa
                     </button>
                 </div>
             </section>
@@ -496,50 +496,6 @@
                 <div class="actions">
                     <button type="button" class="btn btn-success" onclick="guardarModulo('documentacion')">
                         ✓ Guardar y Volver
-                    </button>
-                </div>
-            </section>
-
-            <!-- PASO 3: Firmas y Evidencias -->
-            <!-- PASO 3: Firmas y Evidencias -->
-            <section id="seccionFirmas" class="card" style="display: none;">
-                <h2>✍️ Firmas y Evidencias</h2>
-                
-                <div class="signature-row">
-                    <div class="signature-group">
-                        <label>Firma del Conductor: *</label>
-                        <div class="signature-pad-container">
-                            <canvas id="firmaConductor" width="400" height="200"></canvas>
-                            <button type="button" class="btn-clear-signature" onclick="limpiarFirma('firmaConductor')">🗑️ Limpiar</button>
-                        </div>
-                    </div>
-                    <div class="signature-group">
-                        <label>Firma del Inspector: *</label>
-                        <div class="signature-pad-container">
-                            <canvas id="firmaInspector" width="400" height="200"></canvas>
-                            <button type="button" class="btn-clear-signature" onclick="limpiarFirma('firmaInspector')">🗑️ Limpiar</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group" style="margin-top: 24px;">
-                    <label for="evidencias">📸 Evidencias Fotográficas (opcional):</label>
-                    <input type="file" 
-                           id="evidencias" 
-                           name="evidencias" 
-                           accept="image/*" 
-                           multiple 
-                           capture="environment">
-                    <small>Puedes seleccionar múltiples fotos</small>
-                </div>
-                <div id="previewEvidencias" class="preview-container"></div>
-
-                <div class="actions">
-                    <button type="button" class="btn btn-secondary" onclick="volverAModulos()">
-                        ← Volver a Módulos
-                    </button>
-                    <button type="submit" class="btn btn-primary">
-                        💾 Guardar Inspección Completa
                     </button>
                 </div>
             </section>
